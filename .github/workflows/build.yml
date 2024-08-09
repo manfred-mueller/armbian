@@ -40,16 +40,24 @@ jobs:
         cd build
         ./compile.sh build BOARD=nanopineo BRANCH=legacy BUILD_MINIMAL=no BUILD_DESKTOP=yes KERNEL_CONFIGURE=no RELEASE=bookworm
         echo "status=success" >> $GITHUB_ENV
-        cd output/images
-        tar -Jcvf /tmp/nanopi_neo_image.tar.xz *.img        
 
-    - name: Upload Armbian image
-      id: upload_image
+    - name: Archive IMG files
+      id: archive_images
+      run: |
+        mkdir -p /tmp/archives
+        for img_file in build/output/images/*.img; do
+          archive_name=$(basename "${img_file}").tar.xz
+          tar -Jcvf "/tmp/archives/$archive_name" *.img*
+          echo "archive=$archive_name" >> $GITHUB_ENV
+        done
+
+    - name: Upload Armbian images
+      id: upload_images
       uses: actions/upload-artifact@v4 # Updated to the latest version
       if: env.status == 'success'
       with:
-        name: Nanopi_neo_image
-        path: /tmp/nanopi_neo_image.tar.xz
+        name: Armbian_images
+        path: /tmp/archives/${{ env.archive }}
         
     - name: Build summary
       id: build_summary
@@ -62,25 +70,17 @@ jobs:
         echo "name=NanoPi-Neo" >> $GITHUB_ENV
         echo "title=NanoPi Neo Bookworm minimal" >> $GITHUB_ENV
         
-    - name: Download Image from build
+    - name: Download Images from build
       uses: actions/download-artifact@v4
       with:
-         name: Nanopi_neo_image
-
-    - name: Find IMG_PATH
-      run: |
-            imgPath=$(find . -depth -maxdepth 1 -name "nanopi_neo_image*" -type f)
-            export IMG_PATH=$imgPath
-            echo "IMG_PATH=$imgPath" >> $GITHUB_ENV
-            echo $imgPath
-      id: find_img_path
+         name: Armbian_images
 
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@v2
       with:
        repo_token: ${{ secrets.GITHUB_TOKEN }}
-       file: ./nanopi_neo_image.tar.xz
-       asset_name: ${{ env.name }}.img
-       tag: "${{ env.build }}"
+       file: ${{ env.ARCHIVE_PATHS }}
+       asset_name: ${{ github.run_number }}-${{ env.archive }}
+       tag: "v${{ github.run_number }}"
        overwrite: true
-       body: $(cat summary.md)
+       body: ${{ steps.build_summary.outputs.summary }}
