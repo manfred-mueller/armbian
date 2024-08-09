@@ -41,7 +41,7 @@ jobs:
         ./compile.sh build BOARD=nanopineo BRANCH=legacy BUILD_MINIMAL=no BUILD_DESKTOP=yes KERNEL_CONFIGURE=no RELEASE=bookworm
         echo "status=success" >> $GITHUB_ENV
         cd output/images
-        tar -zcvf /tmp/nanopi_neo_image.tar.gz *.img        
+        tar -Jcvf /tmp/nanopi_neo_image.tar.xz *.img        
 
     - name: Upload Armbian image
       id: upload_image
@@ -49,7 +49,7 @@ jobs:
       if: env.status == 'success'
       with:
         name: Nanopi_neo_image
-        path: /tmp/nanopi_neo_image.tar.gz
+        path: /tmp/nanopi_neo_image.tar.xz
         
     - name: Build summary
       id: build_summary
@@ -79,7 +79,7 @@ jobs:
       uses: svenstaro/upload-release-action@v2
       with:
        repo_token: ${{ secrets.GITHUB_TOKEN }}
-       file: ${{ env.IMG_PATH }}
+       file: ./nanopi_neo_image.tar.xz
        asset_name: ${{ env.name }}.img
        tag: "${{ env.build }}"
        overwrite: true
