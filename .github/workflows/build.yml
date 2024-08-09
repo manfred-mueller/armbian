@@ -45,7 +45,7 @@ jobs:
 
     - name: Upload Armbian image
       id: upload_image
-      uses: actions/upload-artifact@v3 # Updated to the latest version
+      uses: actions/upload-artifact@v4 # Updated to the latest version
       if: env.status == 'success'
       with:
         name: Nanopi_neo_image
