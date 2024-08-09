@@ -78,7 +78,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: "${{ env.build }}"
+        tag_name: "v${{ env.build }}"
         release_name: ${{ env.name }}
         body_path: summary.md
         draft: false
