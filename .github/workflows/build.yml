@@ -41,7 +41,7 @@ jobs:
         ./compile.sh build BOARD=nanopineo BRANCH=legacy BUILD_MINIMAL=no BUILD_DESKTOP=yes KERNEL_CONFIGURE=no RELEASE=bookworm
         echo "status=success" >> $GITHUB_ENV
         cd output/images
-        tar -cvfz /tmp/nanopi_neo_image.tar.gz *.img        
+        tar -zcvf /tmp/nanopi_neo_image.tar.gz *.img        
 
     - name: Upload Armbian image
       id: upload_image
