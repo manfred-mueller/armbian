@@ -51,10 +51,6 @@ jobs:
         name: Nanopi_neo_image
         path: /tmp/nanopi_neo_image.tar.gz
         
-    - name: Set artifact_url
-      id: set_artifact_url
-      run: echo "artifact_url=${{ steps.upload_image.outputs.artifact-url }}" >> $GITHUB_ENV
-
     - name: Build summary
       id: build_summary
       run: |
@@ -66,30 +62,22 @@ jobs:
         echo "name=NanoPi-Neo" >> $GITHUB_ENV
         echo "title=NanoPi Neo Bookworm minimal" >> $GITHUB_ENV
         
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Download Image from build
+      uses: actions/download-artifact@v4
       with:
-        tag_name: "${{ env.build }}"
-        release_name: ${{ env.title }}
-        body_path: summary.md
-        draft: false
-        prerelease: false
-
-    - name: Upload Release Asset
-      id: upload-release-asset 
-      uses: actions/upload-release-asset@v1
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+         name: Nanopi_neo_image
+    - name: Find IMG_PATH
+      run: |
+            imgPath=$(find . -name "*.tar.gz" -type f)
+            export IMG_PATH=$imgPath
+            echo "IMG_PATH=$imgPath" >> $GITHUB_ENV
+      id: find_img_path
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
       with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: /tmp/nanopi_neo_image.tar.gz
-          asset_name: nanopi_neo_image.tar.gz
-          asset_content_type: application/gzip
-          
-    - name: Remove old artifacts
-      uses: c-hive/gha-remove-artifacts@v1
-      with:
-        age: '7 days'
+       repo_token: ${{ secrets.GITHUB_TOKEN }}
+       file: ${{ env.IMG_PATH }}
+       asset_name: ${{ env.name }}.img
+       tag: "${{ env.build }}"
+       overwrite: true
+       body: $(cat summary.md)
