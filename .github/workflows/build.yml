@@ -64,10 +64,10 @@ jobs:
     - name: Build summary
       id: build_summary
       run: |
-        echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
-        echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
-        echo "| Name | NanoPi Neo |" >> $GITHUB_STEP_SUMMARY
-        echo "| Build | v${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Property | Value |" >> summary.md
+        echo "| :--- | :--- |" >> summary.md
+        echo "| Name | NanoPi Neo |" >> summary.md
+        echo "| Build | v${{ github.run_number }} |" >> summary.md
         echo "build=v${{ github.run_number }}" >> $GITHUB_ENV
         echo "name=NanoPi-Neo" >> $GITHUB_ENV
         echo "title=NanoPi Neo Bookworm minimal" >> $GITHUB_ENV
