@@ -38,7 +38,7 @@ jobs:
       id: build
       run: |
         cd build
-        ./compile.sh build BOARD=nanopineo BRANCH=current BUILD_MINIMAL=yes KERNEL_CONFIGURE=no RELEASE=bookworm
+        ./compile.sh build BOARD=nanopineo BRANCH=legacy BUILD_MINIMAL=no BUILD_DESKTOP=yes KERNEL_CONFIGURE=no RELEASE=bookworm
         echo "::set-output name=status::success"
         cd  output/images
         tar -Jcvf /tmp/nanopi_neo_image.tar.xz  *.img        
