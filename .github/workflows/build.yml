@@ -50,18 +50,46 @@ jobs:
         name: Nanopi_neo_image
         path: /tmp/nanopi_neo_image.tar.xz
         
-    - name: Upload image to release
-      uses: softprops/action-gh-release@v1
+    - name: Upload artifact
+      id: upload_artifact
+      uses: actions/upload-artifact@v4
+      with:
+          name: nanopi-neo
+          path: /tmp/nanopi_neo_image.tar.xz
+      
+    - name: Set artifact_url
+      id: set_artifact_url
+      run: echo "artifact_url=${{ steps.upload_artifact.outputs.artifact-url }}" >> $env:GITHUB_ENV
+        
+    - name: Build summary
+      id: build_summary
+      run: |
+          Add-Content $env:GITHUB_STEP_SUMMARY @"
+          | Property | Value |
+          | :--- | :--- |
+          | Name | NanoPi Neo |
+          | Build | "v${{ github.run_number }}" |
+          # Save the GITHUB_STEP_SUMMARY contents to a file
+          (Get-Content $env:GITHUB_STEP_SUMMARY) | Set-Content summary.md
+          echo "build="v${{ github.run_number }}" >> $env:GITHUB_ENV
+          echo "name=NanoPi-Neo" >> $env:GITHUB_ENV
+          echo "title=NanoPi Neo Bookworm minimal" >> $env:GITHUB_ENV
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: v${{ github.run_number }}
-        files: /tmp/nanopi_neo_image.tar.xz 
+        tag_name: "v${{ env.build }}"
+        release_name: ${{ env.name }}
+        body_path: summary.md
+        draft: false
+        prerelease: false
 
     - name: Remove old artifacts
       uses: c-hive/gha-remove-artifacts@v1
       with:
-         age: '7 days' # '<number> <unit>', e.g. 5 days, 2 years, 90 seconds, parsed by Moment.js
+        age: '7 days' # '<number> <unit>', e.g. 5 days, 2 years, 90 seconds, parsed by Moment.js
               # Optional inputs
               # skip-tags: true
               # skip-recent: 5
