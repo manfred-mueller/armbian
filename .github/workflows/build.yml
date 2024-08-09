@@ -45,9 +45,10 @@ jobs:
       id: archive_images
       run: |
         mkdir -p /tmp/archives
-        for img_file in build/output/images/*.img; do
+        cd output/images
+        for img_file in *.img; do
           archive_name=$(basename "${img_file}").tar.xz
-          tar -Jcvf "/tmp/archives/$archive_name" *.img*
+          tar -Jcvf "/tmp/archives/$archive_name" ${img_file}*
           echo "archive=$archive_name" >> $GITHUB_ENV
         done
 
