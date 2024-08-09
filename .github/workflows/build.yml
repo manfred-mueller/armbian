@@ -50,17 +50,6 @@ jobs:
         name: Nanopi_neo_image
         path: /tmp/nanopi_neo_image.tar.xz
         
-    - name: Upload artifact
-      id: upload_artifact
-      uses: actions/upload-artifact@v3 # Updated to the latest version
-      with:
-        name: nanopi-neo
-        path: /tmp/nanopi_neo_image.tar.xz
-      
-    - name: Set artifact_url
-      id: set_artifact_url
-      run: echo "artifact_url=${{ steps.upload_artifact.outputs.artifact-url }}" >> $GITHUB_ENV
-        
     - name: Build summary
       id: build_summary
       run: |
