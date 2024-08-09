@@ -79,7 +79,7 @@ jobs:
       uses: svenstaro/upload-release-action@v2
       with:
        repo_token: ${{ secrets.GITHUB_TOKEN }}
-       file: ./nanopi_neo_image.tar.gz
+       file: ./nanopi_neo_image.tar.xz
        asset_name: ${{ env.name }}.img
        tag: "${{ env.build }}"
        overwrite: true
