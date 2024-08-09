@@ -67,6 +67,8 @@ jobs:
         echo "| :--- | :--- |" >> summary.md
         echo "| Name | NanoPi Neo |" >> summary.md
         echo "| Build | v${{ github.run_number }} |" >> summary.md
+        SUMMARY=$(cat summary.md)
+        echo "img_summary=$SUMMARY" >> $GITHUB_ENV
         echo "build=v${{ github.run_number }}" >> $GITHUB_ENV
         echo "name=NanoPi-Neo" >> $GITHUB_ENV
         echo "title=NanoPi Neo Bookworm minimal" >> $GITHUB_ENV
@@ -84,4 +86,4 @@ jobs:
        asset_name: ${{ github.run_number }}-${{ env.archive }}
        tag: "v${{ github.run_number }}"
        overwrite: true
-       body: ${{ steps.build_summary.outputs.summary }}
+       body: ${{ env.img_summary }}
