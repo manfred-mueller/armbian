@@ -45,7 +45,7 @@ jobs:
       id: archive_images
       run: |
         mkdir -p /tmp/archives
-        cd output/images
+        cd build/output/images
         for img_file in *.img; do
           archive_name=$(basename "${img_file}").tar.xz
           tar -Jcvf "/tmp/archives/$archive_name" ${img_file}*
