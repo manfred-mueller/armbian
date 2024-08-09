@@ -69,17 +69,17 @@ jobs:
 
     - name: Find IMG_PATH
       run: |
-            imgPath=$(find . -depth -maxdepth 1 -name "Nanopi_neo_image*" -type f)
+            imgPath=$(find . -depth -maxdepth 1 -name "nanopi_neo_image*" -type f)
             export IMG_PATH=$imgPath
             echo "IMG_PATH=$imgPath" >> $GITHUB_ENV
-            find . -depth -maxdepth 1 -type f
+            echo $imgPath
       id: find_img_path
 
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@v2
       with:
        repo_token: ${{ secrets.GITHUB_TOKEN }}
-       file: ./nanopi_neo_image.tar.xz
+       file: ./nanopi_neo_image.tar.gz
        asset_name: ${{ env.name }}.img
        tag: "${{ env.build }}"
        overwrite: true
