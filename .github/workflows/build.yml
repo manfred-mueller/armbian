@@ -6,7 +6,7 @@ on:
 
 env:
   UPLOAD_IMAGE: true
-  CUSTOMIZATIOM_SCRIPT: userpatches/customize-image.sh
+  CUSTOMIZATION_SCRIPT: userpatches/customize-image.sh
   KERNEL_CONFIG: config
   UPLOAD_RELEASE: true
 
@@ -19,7 +19,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@master
 
-    - name: Initialization environment
+    - name: Initialize environment
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
@@ -31,17 +31,17 @@ jobs:
     - name: Download source code
       run: |
         pwd
-        echo   $GITHUB_WORKSPACE
+        echo $GITHUB_WORKSPACE
         git clone --depth=1 --branch=main https://github.com/armbian/build
      
-    - name: build Armbian image
+    - name: Build Armbian image
       id: build
       run: |
         cd build
         ./compile.sh build BOARD=nanopineo BRANCH=legacy BUILD_MINIMAL=no BUILD_DESKTOP=yes KERNEL_CONFIGURE=no RELEASE=bookworm
         echo "::set-output name=status::success"
-        cd  output/images
-        tar -Jcvf /tmp/nanopi_neo_image.tar.xz  *.img        
+        cd output/images
+        tar -Jcvf /tmp/nanopi_neo_image.tar.xz *.img        
 
     - name: Upload Armbian image
       uses: actions/upload-artifact@master
@@ -54,26 +54,24 @@ jobs:
       id: upload_artifact
       uses: actions/upload-artifact@v4
       with:
-          name: nanopi-neo
-          path: /tmp/nanopi_neo_image.tar.xz
+        name: nanopi-neo
+        path: /tmp/nanopi_neo_image.tar.xz
       
     - name: Set artifact_url
       id: set_artifact_url
-      run: echo "artifact_url=${{ steps.upload_artifact.outputs.artifact-url }}" >> $env:GITHUB_ENV
+      run: echo "artifact_url=${{ steps.upload_artifact.outputs.artifact-url }}" >> $GITHUB_ENV
         
     - name: Build summary
       id: build_summary
       run: |
-          Add-Content $env:GITHUB_STEP_SUMMARY @"
-          | Property | Value |
-          | :--- | :--- |
-          | Name | NanoPi Neo |
-          | Build | "v${{ github.run_number }}" |
-          # Save the GITHUB_STEP_SUMMARY contents to a file
-          (Get-Content $env:GITHUB_STEP_SUMMARY) | Set-Content summary.md
-          echo "build="v${{ github.run_number }}" >> $env:GITHUB_ENV
-          echo "name=NanoPi-Neo" >> $env:GITHUB_ENV
-          echo "title=NanoPi Neo Bookworm minimal" >> $env:GITHUB_ENV
+        echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+        echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
+        echo "| Name | NanoPi Neo |" >> $GITHUB_STEP_SUMMARY
+        echo "| Build | v${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY
+        echo "build=v${{ github.run_number }}" >> $GITHUB_ENV
+        echo "name=NanoPi-Neo" >> $GITHUB_ENV
+        echo "title=NanoPi Neo Bookworm minimal" >> $GITHUB_ENV
+        
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -89,7 +87,4 @@ jobs:
     - name: Remove old artifacts
       uses: c-hive/gha-remove-artifacts@v1
       with:
-        age: '7 days' # '<number> <unit>', e.g. 5 days, 2 years, 90 seconds, parsed by Moment.js
-              # Optional inputs
-              # skip-tags: true
-              # skip-recent: 5
+        age: '7 days'
