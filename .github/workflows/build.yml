@@ -66,12 +66,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
          name: Nanopi_neo_image
-    - name: Find IMG_PATH
-      run: |
-            imgPath=$(find . -name "*.tar.gz" -type f)
-            export IMG_PATH=$imgPath
-            echo "IMG_PATH=$imgPath" >> $GITHUB_ENV
-      id: find_img_path
+
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@v2
       with:
