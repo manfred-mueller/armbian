@@ -72,6 +72,7 @@ jobs:
             imgPath=$(find . -depth -maxdepth 1 -name "Nanopi_neo_image*" -type f)
             export IMG_PATH=$imgPath
             echo "IMG_PATH=$imgPath" >> $GITHUB_ENV
+            find . -depth -maxdepth 1 -type f
       id: find_img_path
 
     - name: Upload binaries to release
