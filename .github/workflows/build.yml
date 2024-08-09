@@ -44,12 +44,17 @@ jobs:
         tar -Jcvf /tmp/nanopi_neo_image.tar.xz *.img        
 
     - name: Upload Armbian image
+      id: upload_image
       uses: actions/upload-artifact@v3 # Updated to the latest version
       if: env.status == 'success'
       with:
         name: Nanopi_neo_image
         path: /tmp/nanopi_neo_image.tar.xz
         
+    - name: Set artifact_url
+      id: set_artifact_url
+      run: echo "artifact_url=${{ steps.upload_image.outputs.artifact-url }}" >> $GITHUB_ENV
+
     - name: Build summary
       id: build_summary
       run: |
