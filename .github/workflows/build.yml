@@ -1,77 +1,67 @@
-name: "Build for NanoPi Neo and RockPi 4b"
+name: Build Armbian
+
 on:
+  repository_dispatch:
   workflow_dispatch:
-    inputs:
 
-      armbian_target:
-        type: choice
-        description: 'Build'
-        required: false
-        options:
-        - kernel
-        - build
-        default: build
+env:
+  UPLOAD_IMAGE: true
+  CUSTOMIZATIOM_SCRIPT: userpatches/customize-image.sh
+  KERNEL_CONFIG: config
+  UPLOAD_RELEASE: true
 
-      armbian_kernel_branch:
-        type: choice
-        description: 'Kernel branch'
-        options:
-        - legacy
-        - current
-        - edge
-        default: 'current'
-
-      armbian_release:
-        type: choice
-        description: 'Userspace'
-        options:
-        - jammy
-        - mantic
-        - bookworm
-        - trixie
-        - sid
-        default: 'jammy'
-
-      armbian_ui:
-        type: choice
-        description: 'User interface (not all works)'
-        options:
-        - minimal
-        - server
-        - xfce
-        - gnome
-        - cinnamon
-        - i3-wm
-        - kde-plasma
-        default: 'xfce'
-
-      armbian_version:
-        description: 'Version'
-        required: false
-        default: ''
-
-      armbian_board:
-        type: choice
-        description: 'Board'
-        options:
-        - nanopineo
-        - rockpi-4b
 jobs:
-
   build:
-    name: "Build Armbian"
-    runs-on: ubuntu-latest
-    steps:
+    runs-on: ubuntu-22.04
+    if: github.event.repository.owner.id == github.event.sender.id
 
-      - uses: armbian/build@v24.2.1
-        with:
-          armbian_token:              "${{secrets.GITHUB_TOKEN}}"
-          armbian_target:             "${{inputs.armbian_target}}"
-          armbian_release:            "${{inputs.armbian_release}}"
-          armbian_kernel_branch:      "${{inputs.armbian_kernel_branch}}"
-          armbian_ui:                 "${{inputs.armbian_ui}}"
-          armbian_board:              "${{inputs.armbian_board}}"
-          armbian_release_tittle:     "Armbian SDK"
-          armbian_release_body:       "Virtual images for x86 and arm64"
-          armbian_pgp_key:            "${{secrets.GPG_KEY1}}"
-          armbian_pgp_password:       "${{secrets.GPG_PASSPHRASE1}}"
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+
+    - name: Initialization environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+        sudo -E apt-get -qq update
+        sudo -E apt-get -qq autoremove --purge
+        sudo -E apt-get -qq clean
+
+    - name: Download source code
+      run: |
+        pwd
+        echo   $GITHUB_WORKSPACE
+        git clone --depth=1 --branch=main https://github.com/armbian/build
+     
+    - name: build Armbian image
+      id: build
+      run: |
+        cd build
+        ./compile.sh build BOARD=nanopineo BRANCH=current BUILD_MINIMAL=yes KERNEL_CONFIGURE=no RELEASE=bookworm
+        echo "::set-output name=status::success"
+        cd  output/images
+        tar -Jcvf /tmp/nanopi_neo_image.tar.xz  *.img        
+
+    - name: Upload Armbian image
+      uses: actions/upload-artifact@master
+      if: steps.build.outputs.status == 'success'
+      with:
+        name: Nanopi_neo_image
+        path: /tmp/nanopi_neo_image.tar.xz
+        
+    - name: Generate release tag
+      id: tag
+      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      run: |
+        echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
+        echo "::set-output name=status::success"
+    
+    - name: Upload image to release
+      uses: softprops/action-gh-release@v1
+      if: steps.tag.outputs.status == 'success' && !cancelled()
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.tag.outputs.release_tag }}
+        files: /tmp/nanopi_neo_image.tar.xz 
