@@ -3,7 +3,45 @@ name: Build Armbian
 on:
   repository_dispatch:
   workflow_dispatch:
+    inputs:
 
+      build_board:
+        type: choice
+        description: 'Board'
+        required: true
+        options:
+        - rockpi-4b
+        - nanopineo
+        - odroidxu4
+        default: rockpi-4b
+
+      build_branch:
+        type: choice
+        description: 'Branch'
+        required: true
+        options:
+        - current
+        - edge
+        - legacy
+        default: current
+
+      build_desktop:
+        type: choice
+        description: 'Build desktop'
+        required: true
+        options:
+        - yes
+        - no
+        default: no
+
+      build_release:
+        type: choice
+        description: 'Release'
+        required: false
+        options:
+        - Bullseye
+        - Bookworm
+        default: Bullseye
 env:
   UPLOAD_IMAGE: true
   CUSTOMIZATION_SCRIPT: userpatches/customize-image.sh
@@ -14,7 +52,12 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     if: github.event.repository.owner.id == github.event.sender.id
-
+    strategy:
+      matrix:
+        board: ["${{inputs.build_board}}"]
+        branch: ["${{inputs.build_branch}}"]
+        desktop: ["${{inputs.build_desktop}}"]
+        release: ["${{inputs.build_release}}"]
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -38,7 +81,7 @@ jobs:
       id: build
       run: |
         cd build
-        ./compile.sh build BOARD=nanopineo BRANCH=legacy BUILD_MINIMAL=no BUILD_DESKTOP=yes KERNEL_CONFIGURE=no RELEASE=bookworm
+        ./compile.sh build BOARD=${{ matrix.board }} BRANCH=${{ matrix.branch }} BUILD_MINIMAL=no BUILD_DESKTOP=${{ matrix.desktop }} KERNEL_CONFIGURE=no RELEASE=${{ matrix.release }}
         echo "status=success" >> $GITHUB_ENV
 
     - name: Build summary
@@ -46,10 +89,10 @@ jobs:
       run: |
         echo "| Property | Value |" >> summary.md
         echo "| :--- | :--- |" >> summary.md
-        echo "| Board | NanoPi Neo |" >> summary.md
-        echo "| Branch | Legacy |" >> summary.md
-        echo "| Release | Bookworm |" >> summary.md
-        echo "| Desktop | Yes |" >> summary.md
+        echo "| Board | ${{ matrix.board }} |" >> summary.md
+        echo "| Branch | ${{ matrix.branch }} |" >> summary.md
+        echo "| Release | ${{ matrix.release }} |" >> summary.md
+        echo "| Desktop | ${{ matrix.desktop }} |" >> summary.md
 
     - name: Encode summary
       id: encode_summary
