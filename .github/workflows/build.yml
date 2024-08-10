@@ -49,11 +49,11 @@ jobs:
         echo "| Name | NanoPi Neo |" >> summary.md
         echo "| Build | v${{ github.run_number }} |" >> summary.md
 
-    - name: Read summary into variable
-      id: read_summary
+    - name: Encode summary
+      id: encode_summary
       run: |
-        summary=$(<summary.md)
-        echo "summary=$summary" >> $GITHUB_ENV
+        summary=$(base64 < summary.md)
+        echo "summary_encoded=$summary" >> $GITHUB_ENV
 
     - name: Upload each Armbian file as release asset
       run: |
@@ -67,13 +67,9 @@ jobs:
         summary: ${{ env.summary }}
 
     - name: Create or update release
-      uses: actions/create-release@v1
-      with:
-        tag_name: "v${{ github.run_number }}"
-        release_name: "v${{ github.run_number }}"
-        body: ${{ env.summary }}
-        draft: false
-        prerelease: false
+      run: |
+        echo $summary_encoded | base64 --decode > decoded_summary.md
+        gh release create "v${{ github.run_number }}" /dev/null --title "v${{ github.run_number }}" --notes-file decoded_summary.md --repo "${{ github.repository }}"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
