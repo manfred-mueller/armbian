@@ -82,11 +82,11 @@ jobs:
       id: build
       run: |
         cd build
-        BOARD=$(echo "${{ matrix.board }}" | tr '[:upper:]' '[:lower:]')
-        BRANCH=$(echo "${{ matrix.branch }}" | tr '[:upper:]' '[:lower:]')
-        DESKTOP=$(echo "${{ matrix.desktop }}" | tr '[:upper:]' '[:lower:]')
-        RELEASE=$(echo "${{ matrix.release }}" | tr '[:upper:]' '[:lower:]')
-        ./compile.sh build BOARD=${{ matrix.board }} BRANCH=${{ matrix.branch }} BUILD_MINIMAL=no BUILD_DESKTOP=${{ matrix.desktop }} KERNEL_CONFIGURE=no RELEASE=${{ matrix.release }}
+        LowBOARD=$(echo "${{ matrix.board }}" | tr '[:upper:]' '[:lower:]')
+        LowBRANCH=$(echo "${{ matrix.branch }}" | tr '[:upper:]' '[:lower:]')
+        LowDESKTOP=$(echo "${{ matrix.desktop }}" | tr '[:upper:]' '[:lower:]')
+        LowRELEASE=$(echo "${{ matrix.release }}" | tr '[:upper:]' '[:lower:]')
+        ./compile.sh build BOARD=$LowBOARD BRANCH=$LowBRANCH BUILD_MINIMAL=no BUILD_DESKTOP=$LowDESKTOP KERNEL_CONFIGURE=no RELEASE=$LowRELEASE
         echo "status=success" >> $GITHUB_ENV
 
     - name: Build summary
