@@ -52,7 +52,7 @@ jobs:
     - name: Encode summary
       id: encode_summary
       run: |
-        summary=$(base64 < summary.md)
+        summary=$(base64 -w 0 < summary.md)
         echo "summary_encoded=$summary" >> $GITHUB_ENV
 
     - name: Upload each Armbian file as release asset
