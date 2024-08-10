@@ -44,10 +44,12 @@ jobs:
     - name: Build summary
       id: build_summary
       run: |
-        echo "| Property | Value |" >> summary.md
+        #echo "| Property | Value |" >> summary.md
         echo "| :--- | :--- |" >> summary.md
-        echo "| Name | NanoPi Neo |" >> summary.md
-        echo "| Build | v${{ github.run_number }} |" >> summary.md
+        echo "| Board | NanoPi Neo |" >> summary.md
+        echo "| Branch | Legacy |" >> summary.md
+        echo "| Release | Bookworm |" >> summary.md
+        echo "| Desktop | Yes |" >> summary.md
 
     - name: Encode summary
       id: encode_summary
