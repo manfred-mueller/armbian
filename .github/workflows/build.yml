@@ -109,8 +109,8 @@ jobs:
       id: create_release
       run: |
         echo $summary_encoded | base64 --decode > decoded_summary.md
-        if gh release view "v${{ github.run_number }}" --repo "${{ github.repository }}" >/dev/null 2>&1; then
-          gh release edit "v${{ github.run_number }}" --repo "${{ github.repository }}" --notes-file decoded_summary.md
+        if gh release view "v${{ github.run_number }}-${{ matrix.board }}" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+          gh release edit "v${{ github.run_number }}-${{ matrix.board }}" --repo "${{ github.repository }}" --notes-file decoded_summary.md
         else
           gh release create "v${{ github.run_number }}" --repo "${{ github.repository }}" --notes-file decoded_summary.md
         fi
