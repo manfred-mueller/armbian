@@ -21,7 +21,7 @@ on:
         required: true
         options:
         - Current
-        - edge
+        - Edge
         - Legacy
         default: Current
 
