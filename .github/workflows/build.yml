@@ -119,7 +119,7 @@ jobs:
 
     - name: Zip all Armbian files and upload as release asset
       run: |
-        zip armbian_unofficial_release_v${{ github.run_number }}.zip build/output/images/Armbian-unofficial*.img build/output/images/Armbian-unofficial*.img.sha build/output/images/Armbian-unofficial*.img.txt
-        gh release upload "v${{ github.run_number }}" "armbian_unofficial_release_v${{ github.run_number }}.zip" --repo "${{ github.repository }}" --clobber
+        zip armbian_unofficial_release_${{ matrix.board }}.zip build/output/images/Armbian-unofficial*.img build/output/images/Armbian-unofficial*.img.sha build/output/images/Armbian-unofficial*.img.txt
+        gh release upload "v${{ github.run_number }}-${{ matrix.board }}" "armbian_unofficial_release_${{ matrix.board }}.zip" --repo "${{ github.repository }}" --clobber
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
