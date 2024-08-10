@@ -59,20 +59,12 @@ jobs:
       run: |
         for file in build/output/images/Armbian-unofficial*.img build/output/images/Armbian-unofficial*.img.sha build/output/images/Armbian-unofficial*.img.txt; do
           [ -e "$file" ] || continue
-          asset_name=$(basename "$file")
-          gh release upload "v${{ github.run_number }}" "$file" --name "$asset_name" --repo "${{ github.repository }}" --clobber
+          gh release upload "v${{ github.run_number }}" "$file" --repo "${{ github.repository }}" --clobber
         done
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         summary: ${{ env.summary }}
 
-    - name: Upload release binaries
-      uses: alexellis/upload-assets@0.4.0
-      env:
-          GITHUB_TOKEN: ${{ github.token }}
-      with:
-          asset_paths: '["./build/output/images/Armbian-unofficial*"]'
-          
     - name: Create or update release
       run: |
         echo $summary_encoded | base64 --decode > decoded_summary.md
