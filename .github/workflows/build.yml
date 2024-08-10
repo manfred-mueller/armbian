@@ -10,28 +10,28 @@ on:
         description: 'Board'
         required: true
         options:
-        - rockpi-4b
-        - nanopineo
-        - odroidxu4
-        default: rockpi-4b
+        - RockPi-4B
+        - NanoPiNeo
+        - OdroidXU4
+        default: RockPi-4B
 
       build_branch:
         type: choice
         description: 'Branch'
         required: true
         options:
-        - current
+        - Current
         - edge
-        - legacy
-        default: current
+        - Legacy
+        default: Current
 
       build_desktop:
         type: choice
         description: 'Build desktop'
         required: true
         options:
-        - yes
-        - no
+        - Yes
+        - No
         default: no
 
       build_release:
@@ -41,6 +41,7 @@ on:
         options:
         - Bullseye
         - Bookworm
+        - Jammy
         default: Bullseye
 env:
   UPLOAD_IMAGE: true
@@ -81,6 +82,10 @@ jobs:
       id: build
       run: |
         cd build
+        BOARD=$(echo "${{ matrix.board }}" | tr '[:upper:]' '[:lower:]')
+        BRANCH=$(echo "${{ matrix.branch }}" | tr '[:upper:]' '[:lower:]')
+        DESKTOP=$(echo "${{ matrix.desktop }}" | tr '[:upper:]' '[:lower:]')
+        RELEASE=$(echo "${{ matrix.release }}" | tr '[:upper:]' '[:lower:]')
         ./compile.sh build BOARD=${{ matrix.board }} BRANCH=${{ matrix.branch }} BUILD_MINIMAL=no BUILD_DESKTOP=${{ matrix.desktop }} KERNEL_CONFIGURE=no RELEASE=${{ matrix.release }}
         echo "status=success" >> $GITHUB_ENV
 
