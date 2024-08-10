@@ -5,15 +5,15 @@ on:
   workflow_dispatch:
     inputs:
 
-      build_board:
-        type: choice
-        description: 'Board'
-        required: true
-        options:
-        - RockPi-4B
-        - NanoPiNeo
-        - OdroidXU4
-        default: RockPi-4B
+#      build_board:
+#        type: choice
+#        description: 'Board'
+#        required: true
+#        options:
+#        - RockPi-4B
+#        - NanoPiNeo
+#        - OdroidXU4
+#        default: RockPi-4B
 
       build_branch:
         type: choice
@@ -55,7 +55,11 @@ jobs:
     if: github.event.repository.owner.id == github.event.sender.id
     strategy:
       matrix:
-        board: ["${{inputs.build_board}}"]
+        include:
+        - board: RockPi-4B
+        - board: NanoPiNeo
+        - board: OdroidXU4
+        #board: ["${{inputs.build_board}}"]
         branch: ["${{inputs.build_branch}}"]
         desktop: ["${{inputs.build_desktop}}"]
         release: ["${{inputs.build_release}}"]
