@@ -55,6 +55,18 @@ jobs:
         summary=$(base64 -w 0 < summary.md)
         echo "summary_encoded=$summary" >> $GITHUB_ENV
 
+    - name: Create or update release
+      id: create_release
+      run: |
+        echo $summary_encoded | base64 --decode > decoded_summary.md
+        if gh release view "v${{ github.run_number }}" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+          gh release edit "v${{ github.run_number }}" --repo "${{ github.repository }}" --notes-file decoded_summary.md
+        else
+          gh release create "v${{ github.run_number }}" --repo "${{ github.repository }}" --notes-file decoded_summary.md
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Upload each Armbian file as release asset
       run: |
         for file in build/output/images/Armbian-unofficial*.img build/output/images/Armbian-unofficial*.img.sha build/output/images/Armbian-unofficial*.img.txt; do
@@ -63,12 +75,3 @@ jobs:
         done
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        summary: ${{ env.summary }}
-
-    - name: Create or update release
-      run: |
-        echo $summary_encoded | base64 --decode > decoded_summary.md
-        gh release create "v${{ github.run_number }}" /dev/null --title "v${{ github.run_number }}" --notes-file decoded_summary.md --repo "${{ github.repository }}"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
