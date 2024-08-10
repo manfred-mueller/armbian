@@ -56,9 +56,9 @@ jobs:
     strategy:
       matrix:
         include:
-        - board: RockPi-4B
-        - board: NanoPiNeo
-        - board: OdroidXU4
+        - name: RockPi-4B
+        - name: NanoPiNeo
+        - name: OdroidXU4
         #board: ["${{inputs.build_board}}"]
         branch: ["${{inputs.build_branch}}"]
         desktop: ["${{inputs.build_desktop}}"]
@@ -86,7 +86,7 @@ jobs:
       id: build
       run: |
         cd build
-        LowBOARD=$(echo "${{ matrix.board }}" | tr '[:upper:]' '[:lower:]')
+        LowBOARD=$(echo "${{ matrix.name }}" | tr '[:upper:]' '[:lower:]')
         LowBRANCH=$(echo "${{ matrix.branch }}" | tr '[:upper:]' '[:lower:]')
         LowDESKTOP=$(echo "${{ matrix.desktop }}" | tr '[:upper:]' '[:lower:]')
         LowRELEASE=$(echo "${{ matrix.release }}" | tr '[:upper:]' '[:lower:]')
@@ -98,7 +98,7 @@ jobs:
       run: |
         echo "| Property | Value |" >> summary.md
         echo "| :--- | :--- |" >> summary.md
-        echo "| Board | ${{ matrix.board }} |" >> summary.md
+        echo "| Board | ${{ matrix.name }} |" >> summary.md
         echo "| Branch | ${{ matrix.branch }} |" >> summary.md
         echo "| Release | ${{ matrix.release }} |" >> summary.md
         echo "| Desktop | ${{ matrix.desktop }} |" >> summary.md
@@ -113,17 +113,17 @@ jobs:
       id: create_release
       run: |
         echo $summary_encoded | base64 --decode > decoded_summary.md
-        if gh release view "v${{ github.run_number }}-${{ matrix.board }}" --repo "${{ github.repository }}" >/dev/null 2>&1; then
-          gh release edit "v${{ github.run_number }}-${{ matrix.board }}" --repo "${{ github.repository }}" --notes-file decoded_summary.md
+        if gh release view "v${{ github.run_number }}-${{ matrix.name }}" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+          gh release edit "v${{ github.run_number }}-${{ matrix.name }}" --repo "${{ github.repository }}" --notes-file decoded_summary.md
         else
-          gh release create "v${{ github.run_number }}-${{ matrix.board }}" --repo "${{ github.repository }}" --notes-file decoded_summary.md
+          gh release create "v${{ github.run_number }}-${{ matrix.name }}" --repo "${{ github.repository }}" --notes-file decoded_summary.md
         fi
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Zip all Armbian files and upload as release asset
       run: |
-        zip armbian_unofficial_release_${{ matrix.board }}.zip build/output/images/Armbian-unofficial*.img build/output/images/Armbian-unofficial*.img.sha build/output/images/Armbian-unofficial*.img.txt
-        gh release upload "v${{ github.run_number }}-${{ matrix.board }}" "armbian_unofficial_release_${{ matrix.board }}.zip" --repo "${{ github.repository }}" --clobber
+        zip armbian_unofficial_release_${{ matrix.name }}.zip build/output/images/Armbian-unofficial*.img build/output/images/Armbian-unofficial*.img.sha build/output/images/Armbian-unofficial*.img.txt
+        gh release upload "v${{ github.run_number }}-${{ matrix.name }}" "armbian_unofficial_release_${{ matrix.name }}.zip" --repo "${{ github.repository }}" --clobber
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
