@@ -66,6 +66,13 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         summary: ${{ env.summary }}
 
+    - name: Upload release binaries
+      uses: alexellis/upload-assets@0.4.0
+      env:
+          GITHUB_TOKEN: ${{ github.token }}
+      with:
+          asset_paths: '["./build/output/images/Armbian-unofficial*"]'
+          
     - name: Create or update release
       run: |
         echo $summary_encoded | base64 --decode > decoded_summary.md
