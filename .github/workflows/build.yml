@@ -39,9 +39,10 @@ on:
         description: 'Release'
         required: false
         options:
-        - Bullseye
         - Bookworm
+        - Bullseye
         - Jammy
+        - Noble
         default: Bullseye
 env:
   UPLOAD_IMAGE: true
